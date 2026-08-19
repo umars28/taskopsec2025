@@ -1,0 +1,14 @@
+.DS_Store
+.claude/
+
+*.csv
+*.key
+*.pem
+*.csr
+sevima-keys/
+id_rsa*
+id_ed25519*
+
+.cache-gambar/
+webgreat_sevima.html
+webgreat_soal1.html

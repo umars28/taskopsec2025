@@ -1,0 +1,12 @@
+[DEFAULT]
+ignoreself = true
+ignoreip = ${FAIL2BAN_IGNORE}
+bantime = ${FAIL2BAN_BANTIME}
+findtime = ${FAIL2BAN_FINDTIME}
+maxretry = ${FAIL2BAN_MAXRETRY}
+
+[sshd]
+enabled = true
+port = ${SSH_PORT}
+backend = ${FAIL2BAN_BACKEND}
+mode = aggressive

@@ -1,0 +1,5 @@
+Defaults log_input, log_output
+Defaults iolog_dir=/var/log/sudo-io
+Defaults log_host, log_year, logfile=/var/log/sudo.log
+Defaults!/usr/bin/sudoreplay !log_output
+Defaults!/sbin/reboot !log_output

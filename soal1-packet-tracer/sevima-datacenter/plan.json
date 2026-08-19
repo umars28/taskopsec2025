@@ -1,0 +1,682 @@
+{
+  "name": "sevima-datacenter",
+  "devices": [
+    {
+      "name": "R-DC",
+      "model": "2911",
+      "category": "router",
+      "role": "core_router",
+      "x": 460,
+      "y": 60,
+      "interfaces": {
+        "GigabitEthernet0/0": "10.0.0.1/30",
+        "GigabitEthernet0/1": "192.168.0.1/24",
+        "GigabitEthernet0/2": "10.0.0.14/30"
+      },
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "R-JKT",
+      "model": "2911",
+      "category": "router",
+      "role": "edge_router",
+      "x": 160,
+      "y": 200,
+      "interfaces": {
+        "GigabitEthernet0/0": "10.0.0.2/30",
+        "GigabitEthernet0/1": "10.0.0.5/30",
+        "GigabitEthernet0/2": "192.168.1.1/24"
+      },
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "R-BDG",
+      "model": "2911",
+      "category": "router",
+      "role": "edge_router",
+      "x": 460,
+      "y": 340,
+      "interfaces": {
+        "GigabitEthernet0/0": "10.0.0.6/30",
+        "GigabitEthernet0/1": "10.0.0.9/30",
+        "GigabitEthernet0/2": "192.168.2.1/24"
+      },
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "R-SBY",
+      "model": "2911",
+      "category": "router",
+      "role": "edge_router",
+      "x": 760,
+      "y": 200,
+      "interfaces": {
+        "GigabitEthernet0/0": "10.0.0.10/30",
+        "GigabitEthernet0/1": "192.168.3.1/24",
+        "GigabitEthernet0/2": "10.0.0.13/30"
+      },
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SW-DC",
+      "model": "2960-24TT",
+      "category": "switch",
+      "role": "access_switch",
+      "x": 460,
+      "y": -80,
+      "interfaces": {},
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SRV-APP",
+      "model": "Server-PT",
+      "category": "server",
+      "role": "server_host",
+      "x": 340,
+      "y": -220,
+      "interfaces": {
+        "FastEthernet0": "192.168.0.5/24"
+      },
+      "gateway": "192.168.0.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SRV-DB",
+      "model": "Server-PT",
+      "category": "server",
+      "role": "server_host",
+      "x": 460,
+      "y": -220,
+      "interfaces": {
+        "FastEthernet0": "192.168.0.6/24"
+      },
+      "gateway": "192.168.0.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SRV-BACKUP",
+      "model": "Server-PT",
+      "category": "server",
+      "role": "server_host",
+      "x": 580,
+      "y": -220,
+      "interfaces": {
+        "FastEthernet0": "192.168.0.7/24"
+      },
+      "gateway": "192.168.0.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-NOC-1",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 680,
+      "y": -80,
+      "interfaces": {
+        "FastEthernet0": "192.168.0.11/24"
+      },
+      "gateway": "192.168.0.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-NOC-2",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 760,
+      "y": -80,
+      "interfaces": {
+        "FastEthernet0": "192.168.0.12/24"
+      },
+      "gateway": "192.168.0.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SW-JKT",
+      "model": "2960-24TT",
+      "category": "switch",
+      "role": "access_switch",
+      "x": 60,
+      "y": 340,
+      "interfaces": {},
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-JKT-1",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": -40,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.2/24"
+      },
+      "gateway": "192.168.1.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-JKT-2",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 40,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.3/24"
+      },
+      "gateway": "192.168.1.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-JKT-3",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 120,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.4/24"
+      },
+      "gateway": "192.168.1.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SW-BDG",
+      "model": "2960-24TT",
+      "category": "switch",
+      "role": "access_switch",
+      "x": 460,
+      "y": 480,
+      "interfaces": {},
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-BDG-1",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 360,
+      "y": 610,
+      "interfaces": {
+        "FastEthernet0": "192.168.2.2/24"
+      },
+      "gateway": "192.168.2.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-BDG-2",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 440,
+      "y": 610,
+      "interfaces": {
+        "FastEthernet0": "192.168.2.3/24"
+      },
+      "gateway": "192.168.2.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-BDG-3",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 520,
+      "y": 610,
+      "interfaces": {
+        "FastEthernet0": "192.168.2.4/24"
+      },
+      "gateway": "192.168.2.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "SW-SBY",
+      "model": "2960-24TT",
+      "category": "switch",
+      "role": "access_switch",
+      "x": 860,
+      "y": 340,
+      "interfaces": {},
+      "gateway": "",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-SBY-1",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 800,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.3.2/24"
+      },
+      "gateway": "192.168.3.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-SBY-2",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 880,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.3.3/24"
+      },
+      "gateway": "192.168.3.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    },
+    {
+      "name": "PC-SBY-3",
+      "model": "PC-PT",
+      "category": "pc",
+      "role": "end_host",
+      "x": 960,
+      "y": 470,
+      "interfaces": {
+        "FastEthernet0": "192.168.3.4/24"
+      },
+      "gateway": "192.168.3.1",
+      "interfaces_v6": {},
+      "gateway_v6": "",
+      "vlan": 0,
+      "wireless": false
+    }
+  ],
+  "modules": [],
+  "links": [
+    {
+      "device_a": "R-DC",
+      "port_a": "GigabitEthernet0/0",
+      "device_b": "R-JKT",
+      "port_b": "GigabitEthernet0/0",
+      "cable": "cross"
+    },
+    {
+      "device_a": "R-JKT",
+      "port_a": "GigabitEthernet0/1",
+      "device_b": "R-BDG",
+      "port_b": "GigabitEthernet0/0",
+      "cable": "cross"
+    },
+    {
+      "device_a": "R-BDG",
+      "port_a": "GigabitEthernet0/1",
+      "device_b": "R-SBY",
+      "port_b": "GigabitEthernet0/0",
+      "cable": "cross"
+    },
+    {
+      "device_a": "R-SBY",
+      "port_a": "GigabitEthernet0/2",
+      "device_b": "R-DC",
+      "port_b": "GigabitEthernet0/2",
+      "cable": "cross"
+    },
+    {
+      "device_a": "R-DC",
+      "port_a": "GigabitEthernet0/1",
+      "device_b": "SW-DC",
+      "port_b": "GigabitEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "R-JKT",
+      "port_a": "GigabitEthernet0/2",
+      "device_b": "SW-JKT",
+      "port_b": "GigabitEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "R-BDG",
+      "port_a": "GigabitEthernet0/2",
+      "device_b": "SW-BDG",
+      "port_b": "GigabitEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "R-SBY",
+      "port_a": "GigabitEthernet0/1",
+      "device_b": "SW-SBY",
+      "port_b": "GigabitEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-DC",
+      "port_a": "FastEthernet0/1",
+      "device_b": "SRV-APP",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-DC",
+      "port_a": "FastEthernet0/2",
+      "device_b": "SRV-DB",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-DC",
+      "port_a": "FastEthernet0/3",
+      "device_b": "SRV-BACKUP",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-DC",
+      "port_a": "FastEthernet0/11",
+      "device_b": "PC-NOC-1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-DC",
+      "port_a": "FastEthernet0/12",
+      "device_b": "PC-NOC-2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-JKT",
+      "port_a": "FastEthernet0/1",
+      "device_b": "PC-JKT-1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-JKT",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC-JKT-2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-JKT",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC-JKT-3",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-BDG",
+      "port_a": "FastEthernet0/1",
+      "device_b": "PC-BDG-1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-BDG",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC-BDG-2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-BDG",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC-BDG-3",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-SBY",
+      "port_a": "FastEthernet0/1",
+      "device_b": "PC-SBY-1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-SBY",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC-SBY-2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW-SBY",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC-SBY-3",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    }
+  ],
+  "dhcp_pools": [
+    {
+      "router": "R-JKT",
+      "pool_name": "LAN_JKT",
+      "network": "192.168.1.0",
+      "mask": "255.255.255.0",
+      "gateway": "192.168.1.1",
+      "dns": "192.168.0.6",
+      "excluded_start": "192.168.1.1",
+      "excluded_end": "192.168.1.9"
+    },
+    {
+      "router": "R-BDG",
+      "pool_name": "LAN_BDG",
+      "network": "192.168.2.0",
+      "mask": "255.255.255.0",
+      "gateway": "192.168.2.1",
+      "dns": "192.168.0.6",
+      "excluded_start": "192.168.2.1",
+      "excluded_end": "192.168.2.9"
+    },
+    {
+      "router": "R-SBY",
+      "pool_name": "LAN_SBY",
+      "network": "192.168.3.0",
+      "mask": "255.255.255.0",
+      "gateway": "192.168.3.1",
+      "dns": "192.168.0.6",
+      "excluded_start": "192.168.3.1",
+      "excluded_end": "192.168.3.9"
+    },
+    {
+      "router": "R-DC",
+      "pool_name": "LAN_DC",
+      "network": "192.168.0.0",
+      "mask": "255.255.255.0",
+      "gateway": "192.168.0.1",
+      "dns": "192.168.0.6",
+      "excluded_start": "192.168.0.1",
+      "excluded_end": "192.168.0.20"
+    }
+  ],
+  "static_routes": [],
+  "ospf_configs": [
+    {
+      "router": "R-DC",
+      "process_id": 1,
+      "router_id": "10.0.0.1",
+      "networks": [
+        {
+          "network": "10.0.0.0",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "10.0.0.12",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "192.168.0.0",
+          "wildcard": "0.0.0.255",
+          "area": 0
+        }
+      ]
+    },
+    {
+      "router": "R-JKT",
+      "process_id": 1,
+      "router_id": "10.0.0.2",
+      "networks": [
+        {
+          "network": "10.0.0.0",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "10.0.0.4",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "192.168.1.0",
+          "wildcard": "0.0.0.255",
+          "area": 0
+        }
+      ]
+    },
+    {
+      "router": "R-BDG",
+      "process_id": 1,
+      "router_id": "10.0.0.6",
+      "networks": [
+        {
+          "network": "10.0.0.4",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "10.0.0.8",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "192.168.2.0",
+          "wildcard": "0.0.0.255",
+          "area": 0
+        }
+      ]
+    },
+    {
+      "router": "R-SBY",
+      "process_id": 1,
+      "router_id": "10.0.0.10",
+      "networks": [
+        {
+          "network": "10.0.0.8",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "10.0.0.12",
+          "wildcard": "0.0.0.3",
+          "area": 0
+        },
+        {
+          "network": "192.168.3.0",
+          "wildcard": "0.0.0.255",
+          "area": 0
+        }
+      ]
+    }
+  ],
+  "rip_configs": [],
+  "eigrp_configs": [],
+  "vlans": [],
+  "access_ports": [],
+  "trunks": [],
+  "subinterfaces": [],
+  "validations": [
+    {
+      "check_type": "ping",
+      "from_device": "PC-JKT-1",
+      "to_target": "SRV-APP",
+      "expected": "Reply"
+    },
+    {
+      "check_type": "ping",
+      "from_device": "PC-SBY-1",
+      "to_target": "SRV-BACKUP",
+      "expected": "Reply"
+    },
+    {
+      "check_type": "ping",
+      "from_device": "PC-BDG-1",
+      "to_target": "SRV-DB",
+      "expected": "Reply"
+    },
+    {
+      "check_type": "ping",
+      "from_device": "PC-JKT-1",
+      "to_target": "PC-SBY-1",
+      "expected": "Reply"
+    }
+  ],
+  "dual_stack": false,
+  "errors": [],
+  "warnings": []
+}

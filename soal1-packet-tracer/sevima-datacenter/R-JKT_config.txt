@@ -1,0 +1,36 @@
+enable
+configure terminal
+hostname R-JKT
+no ip domain-lookup
+
+interface GigabitEthernet0/0
+ ip address 10.0.0.2 255.255.255.252
+ no shutdown
+ exit
+
+interface GigabitEthernet0/1
+ ip address 10.0.0.5 255.255.255.252
+ no shutdown
+ exit
+
+interface GigabitEthernet0/2
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+ exit
+
+ip dhcp excluded-address 192.168.1.1 192.168.1.9
+ip dhcp pool LAN_JKT
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 192.168.0.6
+ exit
+
+router ospf 1
+ router-id 10.0.0.2
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.4 0.0.0.3 area 0
+ network 192.168.1.0 0.0.0.255 area 0
+ exit
+
+end
+write memory

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Infrastructure Provisioning — @@PESERTA_NAMA@@</title>
+<style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.5; color: #14171a; margin: 0;
+}
+h1 { font-size: 20pt; margin: 0 0 4px; }
+h2 {
+    font-size: 13pt; margin: 26px 0 8px; padding-bottom: 4px;
+    border-bottom: 2px solid #c8102e; page-break-after: avoid;
+}
+h3 { font-size: 11pt; margin: 18px 0 6px; page-break-after: avoid; }
+h4 { font-size: 10pt; margin: 16px 0 6px; color: #5a6672; page-break-after: avoid; }
+p { margin: 0 0 8px; }
+pre {
+    background: #f4f6f8; border: 1px solid #dde3e8; border-left: 3px solid #c8102e;
+    padding: 8px 10px; font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8pt; line-height: 1.35; white-space: pre-wrap; word-wrap: break-word;
+    page-break-inside: avoid; margin: 0 0 10px;
+}
+code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9pt; background: #f4f6f8; padding: 1px 4px; }
+table { border-collapse: collapse; width: 100%; margin: 0 0 12px; font-size: 9.5pt; }
+th, td { border: 1px solid #dde3e8; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #f4f6f8; font-weight: 600; }
+figure { margin: 0 0 14px; page-break-inside: avoid; }
+figure img { max-width: 100%; border: 1px solid #dde3e8; display: block; }
+figcaption { font-size: 8.5pt; color: #5a6672; margin-top: 4px; font-style: italic; }
+.sampul { border-bottom: 3px solid #c8102e; padding-bottom: 14px; margin-bottom: 20px; }
+.sampul .meta { font-size: 10pt; color: #5a6672; }
+.catatan {
+    background: #fff8e6; border-left: 3px solid #e0a800; padding: 8px 12px;
+    margin: 0 0 12px; font-size: 9.5pt;
+}
+.berkas {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.5pt;
+    background: #14171a; color: #e8edf2; padding: 4px 10px; margin: 0;
+    border-radius: 3px 3px 0 0; page-break-after: avoid;
+}
+.berkas + pre { border-left-color: #14171a; margin-top: 0; border-radius: 0 0 3px 3px; }
+.ascii { font-size: 9pt; text-align: center; background: #fff; border: 1px dashed #c8d0d8; }
+</style>
+</head>
+<body>
+
+<div class="sampul">
+<h1>Infrastructure Provisioning</h1>
+<div class="meta">
+Laporan pengerjaan Soal Nomor 1 &mdash; Opsec 2025, PT. Sentra Vidya Utama<br>
+Peserta: <strong>@@PESERTA_NAMA@@</strong> (ID @@PESERTA_ID@@)<br>
+Disusun: @@TANGGAL@@
+</div>
+</div>
+
+<h2>Ringkasan</h2>
+
+<p>
+Topologi pusat data dengan tiga cabang (Jakarta, Bandung, Surabaya) dibangun di Cisco Packet
+Tracer. Keempat lokasi disusun sebagai <strong>ring</strong>, bukan hub-and-spoke, dan routing
+antar-lokasi memakai <strong>OSPF single-area</strong>. Kedua pilihan itu berangkat langsung dari
+kalimat soal: pusat data berfungsi sebagai cadangan <em>"sehingga jika terjadi kendala, recovery
+dapat dilakukan dengan cepat dan efisien"</em>, dan ketiga cabang harus <em>"terhubung satu sama
+lain dengan baik"</em>.
+</p>
+
+<table>
+<tr><th>Aspek</th><th>Keputusan</th></tr>
+<tr><td>Topologi antar-lokasi</td><td>Ring 4 node (DC &ndash; JKT &ndash; BDG &ndash; SBY &ndash; DC)</td></tr>
+<tr><td>Routing</td><td>OSPF process 1, seluruhnya area 0</td></tr>
+<tr><td>Router</td><td>4 &times; Cisco 2911 (3 port Gigabit, tanpa modul tambahan)</td></tr>
+<tr><td>Switch</td><td>4 &times; Cisco 2960-24TT, satu per lokasi</td></tr>
+<tr><td>Server</td><td>3 &times; Server-PT di Data Center (aplikasi, database/DNS, backup)</td></tr>
+<tr><td>Klien</td><td>11 &times; PC-PT (2 NOC di DC, 3 per cabang)</td></tr>
+<tr><td>Total</td><td>22 device, 22 link</td></tr>
+</table>
+
+<h3>Topologi</h3>
+
+<pre class="ascii">        R-DC ─────── R-JKT
+         │              │
+         │              │
+        R-SBY ─────── R-BDG</pre>
+
+@@GAMBAR:TOPOLOGI@@
+
+<h2>1 &mdash; Keputusan desain</h2>
+
+<h3>1.1 Kenapa ring, bukan hub-and-spoke</h3>
+
+<p>
+Hub-and-spoke &mdash; setiap cabang hanya terhubung ke Data Center &mdash; memenuhi syarat
+konektivitas, tetapi menyisakan satu titik kegagalan: bila link cabang&rarr;DC putus, cabang itu
+terisolasi total. Ring memberi <strong>dua jalur</strong> ke setiap tujuan. Saat satu link putus,
+OSPF menghitung ulang jalur lewat arah sebaliknya.
+</p>
+
+<p>
+Ini bukan klaim di atas kertas &mdash; pembuktiannya ada di bagian 5, lengkap dengan tabel route
+sebelum dan sesudah link diputus.
+</p>
+
+<h3>1.2 Kenapa Cisco 2911 tanpa modul serial</h3>
+
+<p>
+Setiap node ring membutuhkan tiga port: satu ke LAN lokal, dua ke tetangga kiri dan kanan. Cisco
+2911 menyediakan tepat <code>GigabitEthernet0/0</code>, <code>0/1</code>, dan <code>0/2</code>,
+sehingga ring empat node muat tanpa modul tambahan sama sekali.
+</p>
+
+<p>
+Alternatifnya memasang HWIC-2T untuk link serial agar lebih menyerupai WAN sungguhan. Itu ditolak
+karena menambah langkah power-cycle per router yang bisa gagal, tanpa mengubah perilaku routing
+yang justru sedang diuji.
+</p>
+
+<h3>1.3 Kenapa OSPF, bukan static route</h3>
+
+<p>
+Redundansi hanya berguna kalau ada yang menghitung ulang jalur saat link mati. Static route tidak
+melakukan itu tanpa konfigurasi floating route manual per tujuan. OSPF mendeteksi link down lewat
+hello timer dan melakukan konvergensi ulang otomatis &mdash; itu inti dari "recovery cepat" yang
+diminta soal.
+</p>
+
+<h2>2 &mdash; Rencana pengalamatan</h2>
+
+<h3>2.1 LAN per lokasi</h3>
+
+<table>
+<tr><th>Lokasi</th><th>Router</th><th>Subnet</th><th>Gateway</th><th>DHCP</th></tr>
+<tr><td>Data Center</td><td>R-DC</td><td>192.168.0.0/24</td><td>192.168.0.1</td><td>pool LAN_DC, exclude .1&ndash;.20</td></tr>
+<tr><td>Jakarta</td><td>R-JKT</td><td>192.168.1.0/24</td><td>192.168.1.1</td><td>pool LAN_JKT, exclude .1&ndash;.9</td></tr>
+<tr><td>Bandung</td><td>R-BDG</td><td>192.168.2.0/24</td><td>192.168.2.1</td><td>pool LAN_BDG, exclude .1&ndash;.9</td></tr>
+<tr><td>Surabaya</td><td>R-SBY</td><td>192.168.3.0/24</td><td>192.168.3.1</td><td>pool LAN_SBY, exclude .1&ndash;.9</td></tr>
+</table>
+
+<p>
+Rentang bawah tiap subnet di-exclude dari DHCP supaya alamat infrastruktur dan server tidak pernah
+dibagikan ke klien. Di Data Center rentangnya lebih lebar karena di situ server statis berada.
+</p>
+
+<h3>2.2 Link antar-router</h3>
+
+<table>
+<tr><th>Link</th><th>Subnet</th><th>Alamat</th></tr>
+<tr><td>DC &harr; JKT</td><td>10.0.0.0/30</td><td>.1 (R-DC Gi0/0) &mdash; .2 (R-JKT Gi0/0)</td></tr>
+<tr><td>JKT &harr; BDG</td><td>10.0.0.4/30</td><td>.5 (R-JKT Gi0/1) &mdash; .6 (R-BDG Gi0/0)</td></tr>
+<tr><td>BDG &harr; SBY</td><td>10.0.0.8/30</td><td>.9 (R-BDG Gi0/1) &mdash; .10 (R-SBY Gi0/0)</td></tr>
+<tr><td>SBY &harr; DC</td><td>10.0.0.12/30</td><td>.13 (R-SBY Gi0/2) &mdash; .14 (R-DC Gi0/2)</td></tr>
+</table>
+
+<p>
+Setiap link point-to-point memakai <code>/30</code> &mdash; dua alamat host, nol pemborosan.
+</p>
+
+<h3>2.3 Server di Data Center</h3>
+
+<table>
+<tr><th>Host</th><th>IP</th><th>Peran</th></tr>
+<tr><td>SRV-APP</td><td>192.168.0.5</td><td>Server aplikasi</td></tr>
+<tr><td>SRV-DB</td><td>192.168.0.6</td><td>Database, sekaligus DNS untuk seluruh LAN</td></tr>
+<tr><td>SRV-BACKUP</td><td>192.168.0.7</td><td>Target backup dan recovery</td></tr>
+</table>
+
+<p>
+Seluruh server memakai IP statis, bukan DHCP. <code>dns-server 192.168.0.6</code> diiklankan ke
+semua cabang; kalau SRV-DB mengambil alamat lease, referensi DNS itu akan menunjuk alamat yang
+tidak dipakai siapa pun. Target backup juga harus beralamat tetap supaya job backup dari cabang
+tidak bergantung pada lease yang bisa berubah.
+</p>
+
+<h3>2.4 Alokasi port</h3>
+
+<table>
+<tr><th>Device</th><th>Gi0/0</th><th>Gi0/1</th><th>Gi0/2</th></tr>
+<tr><td>R-DC</td><td>&rarr; R-JKT</td><td>&rarr; SW-DC</td><td>&rarr; R-SBY</td></tr>
+<tr><td>R-JKT</td><td>&rarr; R-DC</td><td>&rarr; R-BDG</td><td>&rarr; SW-JKT</td></tr>
+<tr><td>R-BDG</td><td>&rarr; R-JKT</td><td>&rarr; R-SBY</td><td>&rarr; SW-BDG</td></tr>
+<tr><td>R-SBY</td><td>&rarr; R-BDG</td><td>&rarr; SW-SBY</td><td>&rarr; R-DC</td></tr>
+</table>
+
+<p>
+Ketiga port terpakai penuh di setiap router &mdash; tidak ada port sisa, dan tidak ada port yang
+kurang.
+</p>
+
+<h2>3 &mdash; OSPF</h2>
+
+<p>
+Process ID 1, seluruh interface di area 0. Router-ID dipatok eksplisit ke alamat link ring
+terendah milik masing-masing router (<code>10.0.0.1</code>, <code>10.0.0.2</code>,
+<code>10.0.0.6</code>, <code>10.0.0.10</code>) supaya tidak berubah bila interface loopback
+ditambahkan di kemudian hari.
+</p>
+
+<p>
+Setiap router mengiklankan LAN-nya sendiri plus kedua subnet ring yang ia terminasi. R-DC dan
+R-SBY sama-sama mengiklankan <code>10.0.0.12/30</code> &mdash; itu link penutup ring, yang membuat
+redundansi benar-benar ada.
+</p>
+
+<h2>4 &mdash; Konfigurasi perangkat</h2>
+
+<h3>4.1 Router</h3>
+
+@@KONFIG:ROUTER@@
+
+<h3>4.2 Switch</h3>
+
+@@KONFIG:SWITCH@@
+
+<h2>5 &mdash; Hasil verifikasi</h2>
+
+<p>
+Seluruh pengujian dijalankan di Packet Tracer pada topologi yang sudah ter-deploy: 22 dari 22
+device dan 22 dari 22 link terverifikasi, tanpa link down dan tanpa IP duplikat.
+</p>
+
+<h3>5.1 Alamat yang benar-benar terpasang</h3>
+
+<table>
+<tr><th>Host</th><th>IP terpasang</th><th>Metode</th></tr>
+<tr><td>SRV-APP</td><td>192.168.0.5</td><td>statis</td></tr>
+<tr><td>SRV-DB (DNS)</td><td>192.168.0.6</td><td>statis</td></tr>
+<tr><td>SRV-BACKUP</td><td>192.168.0.7</td><td>statis</td></tr>
+<tr><td>PC-NOC-1 / PC-NOC-2</td><td>192.168.0.11 / .12</td><td>statis</td></tr>
+<tr><td>PC-JKT-1/2/3</td><td>192.168.1.10 / .11 / .12</td><td>DHCP</td></tr>
+<tr><td>PC-BDG-1/2/3</td><td>192.168.2.11 / .10 / .12</td><td>DHCP</td></tr>
+<tr><td>PC-SBY-1/2/3</td><td>192.168.3.10 / .11 / .12</td><td>DHCP</td></tr>
+</table>
+
+<p>
+Lease DHCP dimulai dari <code>.10</code> di cabang dan <code>.21</code> di Data Center &mdash;
+konsisten dengan <code>ip dhcp excluded-address</code> yang dikonfigurasi. Exclusion-nya karena itu
+terbukti efektif, bukan sekadar tertulis.
+</p>
+
+@@GAMBAR:IP@@
+
+<h3>5.2 Uji konektivitas</h3>
+
+<p>
+Ping dijalankan dari konsol device sungguhan, bukan mode simulasi.
+</p>
+
+<table>
+<tr><th>Dari</th><th>Ke</th><th>Hasil</th><th>Yang dibuktikan</th></tr>
+<tr><td>PC-JKT-1</td><td>SRV-APP 192.168.0.5</td><td>3/4 &mdash; OK</td><td>Cabang menjangkau aplikasi di DC</td></tr>
+<tr><td>PC-SBY-1</td><td>SRV-BACKUP 192.168.0.7</td><td>3/4 &mdash; OK</td><td>Cabang menjangkau target backup</td></tr>
+<tr><td>PC-BDG-1</td><td>SRV-DB 192.168.0.6</td><td>3/4 &mdash; OK</td><td>Cabang menjangkau database</td></tr>
+<tr><td>PC-JKT-1</td><td>PC-SBY-1 192.168.3.10</td><td>4/4 &mdash; OK</td><td>Antar-cabang terhubung</td></tr>
+</table>
+
+<div class="catatan">
+Satu paket hilang pada ping pertama ke tujuan baru adalah perilaku normal, bukan gangguan: paket
+itu terpakai untuk resolusi ARP karena belum ada entri di tabel. Ping keempat &mdash; antar-cabang
+&mdash; menunjukkan 4/4 karena jalurnya sudah hangat.
+</div>
+
+@@GAMBAR:PING@@
+
+<h3>5.3 Adjacency OSPF</h3>
+
+<p>
+Log konsol R-JKT menunjukkan kedua sisi ring naik ke status FULL:
+</p>
+
+<pre>%OSPF-5-ADJCHG: Process 1, Nbr 10.0.0.6 on GigabitEthernet0/1 from LOADING to FULL
+%OSPF-5-ADJCHG: Process 1, Nbr 10.0.0.1 on GigabitEthernet0/0 from LOADING to FULL</pre>
+
+@@GAMBAR:OSPF@@
+
+<h2>6 &mdash; Uji redundansi</h2>
+
+<p>
+Bagian ini yang membuktikan klaim "recovery cepat dan efisien" di soal. Tanpa uji ini, ring hanya
+gambar di kanvas.
+</p>
+
+<h3>6.1 Kondisi normal</h3>
+
+<p><code>show ip route ospf</code> di R-JKT sebelum gangguan:</p>
+
+<pre>O    192.168.0.0 [110/2] via 10.0.0.1, GigabitEthernet0/0
+O    192.168.3.0 [110/3] via 10.0.0.1, GigabitEthernet0/0
+                 [110/3] via 10.0.0.6, GigabitEthernet0/1</pre>
+
+<p>
+Surabaya punya <strong>dua jalur equal-cost</strong>. Jadi ring ini tidak sekadar menyediakan
+cadangan pasif &mdash; trafik ke Surabaya dibagi ke dua arah sekaligus (ECMP).
+</p>
+
+<h3>6.2 Link DC &harr; Jakarta diputus</h3>
+
+<p>Tabel route di R-JKT setelah link dimatikan:</p>
+
+<pre>O    192.168.0.0 [110/4] via 10.0.0.6, 00:00:19, GigabitEthernet0/1
+O    192.168.3.0 [110/3] via 10.0.0.6, 00:00:19, GigabitEthernet0/1</pre>
+
+<p>Empat hal yang terbaca dari dua baris itu:</p>
+
+<table>
+<tr><th>Yang berubah</th><th>Artinya</th></tr>
+<tr><td>Next-hop ke LAN DC: 10.0.0.1 &rarr; 10.0.0.6</td><td>Jalur pindah dari link langsung ke arah Bandung</td></tr>
+<tr><td>Cost: 2 &rarr; 4</td><td>Mencerminkan jalur lebih panjang JKT &rarr; BDG &rarr; SBY &rarr; DC</td></tr>
+<tr><td>Umur route 00:00:19</td><td>OSPF baru menghitung ulang, bukan memakai rute lama</td></tr>
+<tr><td>Jumlah subnet 6 &rarr; 4</td><td>10.0.0.0/30 hilang dari topologi</td></tr>
+</table>
+
+<p>
+<strong>Ping PC-JKT-1 &rarr; SRV-APP saat link terputus: 4/4 diterima, 0% loss.</strong> Data Center
+tetap terjangkau tanpa satu pun intervensi manual.
+</p>
+
+<h3>6.3 Pemulihan</h3>
+
+<p>
+Setelah link disambung kembali, route pulih ke <code>[110/2] via 10.0.0.1</code> dan jalur ECMP ke
+Surabaya kembali muncul. Konvergensi berjalan dua arah, bukan hanya saat gangguan.
+</p>
+
+@@GAMBAR:FAILOVER@@
+
+<h2>7 &mdash; Catatan implementasi</h2>
+
+<p>
+Generator script secara default menyetel semua host ke DHCP kecuali satu "anchor" ber-IP tertinggi
+per subnet yang dibuat statis sebagai fallback. Perilaku itu diubah manual supaya aturannya seragam
+dan bisa dijelaskan: <strong>semua host Data Center statis, semua klien cabang DHCP.</strong>
+</p>
+
+<p>
+Alasannya bukan estetika. SRV-DB sempat mendapat lease <code>.23</code> pada percobaan pertama,
+sementara seluruh cabang diberi <code>dns-server 192.168.0.6</code> lewat DHCP. Referensi DNS itu
+akan menunjuk alamat yang tidak dipakai siapa pun &mdash; jenis kesalahan yang tidak terlihat
+sampai ada yang mencoba resolusi nama.
+</p>
+
+<h2>Lampiran &mdash; Berkas yang disertakan</h2>
+
+<table>
+<tr><th>Berkas</th><th>Isi</th></tr>
+<tr><td><code>sevima-datacenter-3cabang.pkt</code></td><td>File proyek Cisco Packet Tracer</td></tr>
+<tr><td><code>topologi-sevima-datacenter.png</code></td><td>Tangkapan kanvas topologi berlabel</td></tr>
+<tr><td><code>DESAIN.md</code></td><td>Catatan desain dan hasil verifikasi</td></tr>
+<tr><td><code>sevima-datacenter/R-*_config.txt</code></td><td>Konfigurasi IOS per router</td></tr>
+<tr><td><code>sevima-datacenter/SW-*_config.txt</code></td><td>Konfigurasi per switch</td></tr>
+<tr><td><code>sevima-datacenter/plan.json</code></td><td>Rencana topologi terstruktur</td></tr>
+</table>
+
+</body>
+</html>

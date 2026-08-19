@@ -1,0 +1,33 @@
+-D
+-b 32768
+--backlog_wait_time 60000
+-f 1
+
+-a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=unset -k aktivitas_perintah
+-a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=unset -k aktivitas_perintah
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k eskalasi
+-a always,exit -F arch=b64 -S connect -F a2=16 -F auid>=1000 -F auid!=unset -k aktivitas_jaringan
+
+-w /etc/passwd -p wa -k identitas
+-w /etc/shadow -p wa -k identitas
+-w /etc/group -p wa -k identitas
+-w /etc/gshadow -p wa -k identitas
+
+-w /etc/sudoers -p wa -k eskalasi
+-w /etc/sudoers.d/ -p wa -k eskalasi
+
+-w /etc/ssh/sshd_config -p wa -k konfigurasi_ssh
+-w /etc/ssh/sshd_config.d/ -p wa -k konfigurasi_ssh
+
+-w /etc/apache2/ -p wa -k konfigurasi_web
+-w /etc/nginx/ -p wa -k konfigurasi_web
+-w /etc/haproxy/ -p wa -k konfigurasi_web
+
+-w /etc/rsyslog.conf -p wa -k integritas_log
+-w /etc/rsyslog.d/ -p wa -k integritas_log
+-w /etc/logrotate.d/ -p wa -k integritas_log
+-w /etc/audit/ -p wa -k integritas_log
+
+-w ${CA_DIR}/ -p rwa -k akses_ca
+
+-a always,exit -F arch=b64 -S unlink,unlinkat,rename,renameat -F auid>=1000 -F auid!=unset -k hapus_berkas

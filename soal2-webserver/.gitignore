@@ -1,0 +1,8 @@
+*.csv
+*.key
+*.pem
+*.crt
+*.csr
+sevima-keys/
+
+

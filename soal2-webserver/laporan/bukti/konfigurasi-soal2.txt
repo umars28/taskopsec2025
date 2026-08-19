@@ -1,0 +1,459 @@
+##### SECTION: A.2 | FILE: /etc/ssh/sshd_config.d/01-sevima.conf
+Port 2025
+PubkeyAuthentication yes
+PasswordAuthentication yes
+KbdInteractiveAuthentication no
+PermitRootLogin yes
+PermitEmptyPasswords no
+HostbasedAuthentication no
+IgnoreRhosts yes
+AuthorizedKeysFile .ssh/authorized_keys
+LogLevel VERBOSE
+PrintLastLog yes
+MaxAuthTries 6
+MaxSessions 10
+MaxStartups 10:30:60
+LoginGraceTime 30
+ClientAliveInterval 300
+ClientAliveCountMax 2
+X11Forwarding no
+AllowAgentForwarding no
+PermitTunnel no
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+##### END
+
+##### SECTION: A.2 | FILE: /etc/fail2ban/jail.d/99-sevima.local
+[DEFAULT]
+ignoreself = true
+ignoreip = 127.0.0.1/8 ::1
+bantime = 1h
+findtime = 10m
+maxretry = 5
+
+[sshd]
+enabled = true
+port = 2025
+backend = systemd
+mode = aggressive
+##### END
+
+##### SECTION: A.3 | FILE: /etc/audit/rules.d/99-sevima.rules
+-D
+-b 32768
+--backlog_wait_time 60000
+-f 1
+
+-a always,exit -F arch=b64 -S execve -F auid>=1000 -F auid!=unset -k aktivitas_perintah
+-a always,exit -F arch=b32 -S execve -F auid>=1000 -F auid!=unset -k aktivitas_perintah
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k eskalasi
+-a always,exit -F arch=b64 -S connect -F a2=16 -F auid>=1000 -F auid!=unset -k aktivitas_jaringan
+
+-w /etc/passwd -p wa -k identitas
+-w /etc/shadow -p wa -k identitas
+-w /etc/group -p wa -k identitas
+-w /etc/gshadow -p wa -k identitas
+
+-w /etc/sudoers -p wa -k eskalasi
+-w /etc/sudoers.d/ -p wa -k eskalasi
+
+-w /etc/ssh/sshd_config -p wa -k konfigurasi_ssh
+-w /etc/ssh/sshd_config.d/ -p wa -k konfigurasi_ssh
+
+-w /etc/apache2/ -p wa -k konfigurasi_web
+-w /etc/nginx/ -p wa -k konfigurasi_web
+-w /etc/haproxy/ -p wa -k konfigurasi_web
+
+-w /etc/rsyslog.conf -p wa -k integritas_log
+-w /etc/rsyslog.d/ -p wa -k integritas_log
+-w /etc/logrotate.d/ -p wa -k integritas_log
+-w /etc/audit/ -p wa -k integritas_log
+
+-w /root/ca/ -p rwa -k akses_ca
+
+-a always,exit -F arch=b64 -S unlink,unlinkat,rename,renameat -F auid>=1000 -F auid!=unset -k hapus_berkas
+##### END
+
+##### SECTION: A.3 | FILE: /etc/rsyslog.d/49-sevima.conf
+local0.*                        -/var/log/haproxy.log
+& stop
+##### END
+
+##### SECTION: A.3 | FILE: /etc/sudoers.d/99-sevima-logging
+Defaults log_input, log_output
+Defaults iolog_dir=/var/log/sudo-io
+Defaults log_host, log_year, logfile=/var/log/sudo.log
+Defaults!/usr/bin/sudoreplay !log_output
+Defaults!/sbin/reboot !log_output
+##### END
+
+##### SECTION: A.3 | FILE: /etc/systemd/journald.conf.d/99-sevima.conf
+[Journal]
+Storage=persistent
+Compress=yes
+SystemMaxUse=2G
+SystemMaxFileSize=200M
+MaxRetentionSec=1year
+ForwardToSyslog=yes
+Audit=yes
+##### END
+
+##### SECTION: A.4 | FILE: /etc/security/limits.d/99-sevima.conf
+*                soft    nofile          65536
+*                hard    nofile          131072
+*                soft    nproc           8192
+*                hard    nproc           16384
+*                soft    core            0
+*                hard    core            0
+*                soft    memlock         65536
+*                hard    memlock         65536
+root             soft    nofile          65536
+root             hard    nofile          131072
+root             soft    nproc           unlimited
+root             hard    nproc           unlimited
+www-data         soft    nofile          131072
+www-data         hard    nofile          131072
+haproxy          soft    nofile          131072
+haproxy          hard    nofile          131072
+##### END
+
+##### SECTION: A.4 | FILE: /etc/systemd/system/nginx.service.d/99-sevima-limits.conf
+[Service]
+LimitNOFILE=131072
+LimitNPROC=16384
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=read-only
+ProtectSystem=full
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+##### END
+
+##### SECTION: A.4 | FILE: /etc/sysctl.d/99-sevima.conf
+fs.file-max = 2097152
+fs.nr_open = 2097152
+fs.protected_hardlinks = 1
+fs.protected_symlinks = 1
+fs.suid_dumpable = 0
+
+kernel.dmesg_restrict = 1
+kernel.kptr_restrict = 2
+
+net.core.somaxconn = 32768
+net.core.netdev_max_backlog = 32768
+net.ipv4.tcp_max_syn_backlog = 16384
+net.ipv4.tcp_syncookies = 1
+net.ipv4.ip_local_port_range = 10240 65535
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_fin_timeout = 15
+
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv6.conf.default.accept_redirects = 0
+##### END
+
+##### SECTION: B | FILE: /root/ca/openssl.cnf
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir               = /root/ca
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/newcerts
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = $dir/private/.rand
+private_key       = /root/ca/cacert.key
+certificate       = /root/ca/cacert.pem
+crlnumber         = $dir/crlnumber
+crl               = $dir/crl/crl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+default_md        = sha256
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 825
+preserve          = no
+policy            = policy_loose
+copy_extensions   = none
+unique_subject    = no
+email_in_dn       = no
+rand_serial       = no
+
+[ policy_loose ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+default_md          = sha256
+prompt              = no
+
+[ req_distinguished_name ]
+C  = ID
+O  = PT. Sentra Vidya Utama
+CN = SEVIMA CA
+
+[ v3_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ server_cert ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+
+[ crl_ext ]
+authorityKeyIdentifier = keyid:always
+##### END
+
+##### SECTION: C.1 | FILE: /etc/apache2/ports.conf
+Listen 8099
+##### END
+
+##### SECTION: C.1 | FILE: /etc/apache2/conf-available/zz-sevima.conf
+ServerName utara.sevima.site
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+
+RemoteIPHeader X-Forwarded-For
+RemoteIPInternalProxy 127.0.0.1
+RemoteIPInternalProxy ::1
+
+LogFormat "%a %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" sevima
+##### END
+
+##### SECTION: C.1 | FILE: /etc/apache2/sites-available/utara.conf
+<VirtualHost *:8099>
+    ServerName utara.sevima.site
+    ServerAlias www.sevima.site
+    DocumentRoot /var/www/utara
+
+    <Directory /var/www/utara>
+        Options -Indexes +FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+
+    Header always set X-Owner-By "Umar Sabirin"
+    Header always set X-Served-By "apache2"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+
+    ErrorLog ${APACHE_LOG_DIR}/utara-error.log
+    CustomLog ${APACHE_LOG_DIR}/utara-access.log sevima
+</VirtualHost>
+##### END
+
+##### SECTION: C.2 | FILE: /etc/nginx/conf.d/00-sevima-common.conf
+server_tokens off;
+
+set_real_ip_from 127.0.0.1;
+set_real_ip_from ::1;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+##### END
+
+##### SECTION: C.2 | FILE: /etc/nginx/sites-available/timur
+server {
+    listen 8199;
+    listen [::]:8199;
+
+    server_name timur.sevima.site www.sevima.site;
+    root /var/www/timur;
+    index index.html;
+
+    add_header X-Owner-By "Umar Sabirin" always;
+    add_header X-Served-By "nginx" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "no-referrer" always;
+
+    access_log /var/log/nginx/timur-access.log;
+    error_log  /var/log/nginx/timur-error.log;
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+##### END
+
+##### SECTION: C.3 | FILE: /etc/nginx/sites-available/barat
+server {
+    listen 8080;
+    listen [::]:8080;
+    server_name barat.sevima.site;
+
+    access_log /var/log/nginx/barat-redirect.log;
+
+    location / {
+        return 301 https://barat.sevima.site:4435$request_uri;
+    }
+}
+
+server {
+    listen 4435 ssl http2;
+    listen [::]:4435 ssl http2;
+
+    server_name barat.sevima.site;
+    root /var/www/barat;
+    index index.html;
+
+    ssl_certificate     /root/ca/certs/barat.sevima.site.fullchain.pem;
+    ssl_certificate_key /root/ca/certs/barat.sevima.site.key;
+    ssl_dhparam         /etc/nginx/dhparam.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_session_cache shared:SSL_BARAT:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    add_header Strict-Transport-Security "max-age=300" always;
+    add_header X-Owner-By "Umar Sabirin" always;
+    add_header X-Served-By "nginx" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "no-referrer" always;
+
+    access_log /var/log/nginx/barat-access.log;
+    error_log  /var/log/nginx/barat-error.log;
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+##### END
+
+##### SECTION: D | FILE: /etc/haproxy/crt-list.txt
+/etc/haproxy/certs/www.sevima.site.pem
+/etc/haproxy/certs/barat.sevima.site.pem
+##### END
+
+##### SECTION: D | FILE: /etc/haproxy/haproxy.cfg
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 20000
+    ca-base /etc/ssl/certs
+    crt-base /etc/haproxy/certs
+    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305
+    ssl-default-server-options ssl-min-ver TLSv1.2 no-tls-tickets
+    tune.ssl.default-dh-param 2048
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    http-reuse safe
+    retries 3
+    timeout connect 5s
+    timeout client 30s
+    timeout server 30s
+    timeout http-request 10s
+    timeout http-keep-alive 10s
+    timeout queue 30s
+    errorfile 503 /etc/haproxy/errors/503.http
+
+frontend fe_http
+    bind :::80 v4v6
+    http-request redirect scheme https code 301
+
+frontend fe_https
+    bind :::443 v4v6 ssl crt-list /etc/haproxy/crt-list.txt
+
+    http-request del-header X-Forwarded-For
+    http-request del-header X-Forwarded-Proto
+    http-request del-header X-Forwarded-Port
+    http-request set-header X-Forwarded-For %[src]
+    http-request set-header X-Forwarded-Proto https
+    http-request set-header X-Forwarded-Port %[dst_port]
+
+    http-request deny unless METH_GET || METH_HEAD || METH_POST || METH_OPTIONS
+
+    http-response set-header Strict-Transport-Security "max-age=300"
+    http-response set-header X-Content-Type-Options "nosniff"
+    http-response set-header X-Frame-Options "DENY"
+    http-response set-header Referrer-Policy "no-referrer"
+
+    stick-table type ip size 200k expire 60s store http_req_rate(10s)
+    http-request track-sc0 src
+    http-request deny deny_status 429 if { sc_http_req_rate(0) gt 200 }
+
+    acl host_barat hdr(host) -i barat.sevima.site
+    acl host_barat hdr(host) -i barat.sevima.site:443
+    acl host_www   hdr(host) -i www.sevima.site
+    acl host_www   hdr(host) -i sevima.site
+
+    use_backend be_barat if host_barat
+    use_backend be_www   if host_www
+    default_backend be_www
+
+backend be_www
+    balance roundrobin
+    option httpchk
+    http-check send meth GET uri / hdr Host www.sevima.site
+    http-check expect status 200
+    server utara 127.0.0.1:8099 check inter 3s fall 3 rise 2
+    server timur 127.0.0.1:8199 check inter 3s fall 3 rise 2
+
+backend be_barat
+    option httpchk
+    http-check send meth GET uri / hdr Host barat.sevima.site
+    http-check expect status 200
+    server barat 127.0.0.1:4435 ssl verify required ca-file /usr/local/share/ca-certificates/sevima-ca.crt sni str(barat.sevima.site) check
+
+listen stats
+    bind 127.0.0.1:8404
+    mode http
+    stats enable
+    stats uri /
+    stats refresh 5s
+    stats show-legends
+##### END
+

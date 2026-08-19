@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>webgreat_sevima — @@PESERTA_NAMA@@</title>
+<style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.5; color: #14171a; margin: 0;
+}
+h1 { font-size: 20pt; margin: 0 0 4px; }
+h2 {
+    font-size: 13pt; margin: 26px 0 8px; padding-bottom: 4px;
+    border-bottom: 2px solid #c8102e; page-break-after: avoid;
+}
+h3 { font-size: 11pt; margin: 18px 0 6px; page-break-after: avoid; }
+p { margin: 0 0 8px; }
+pre {
+    background: #f4f6f8; border: 1px solid #dde3e8; border-left: 3px solid #c8102e;
+    padding: 8px 10px; font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8pt; line-height: 1.35; white-space: pre-wrap; word-wrap: break-word;
+    page-break-inside: avoid; margin: 0 0 10px;
+}
+code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9pt; background: #f4f6f8; padding: 1px 4px; }
+table { border-collapse: collapse; width: 100%; margin: 0 0 12px; font-size: 9.5pt; }
+th, td { border: 1px solid #dde3e8; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #f4f6f8; font-weight: 600; }
+figure { margin: 0 0 14px; page-break-inside: avoid; }
+figure img { max-width: 100%; border: 1px solid #dde3e8; display: block; }
+figcaption { font-size: 8.5pt; color: #5a6672; margin-top: 4px; font-style: italic; }
+.sampul { border-bottom: 3px solid #c8102e; padding-bottom: 14px; margin-bottom: 20px; }
+.sampul .meta { font-size: 10pt; color: #5a6672; }
+.catatan {
+    background: #fff8e6; border-left: 3px solid #e0a800; padding: 8px 12px;
+    margin: 0 0 12px; font-size: 9.5pt;
+}
+.butir { font-size: 9pt; color: #5a6672; font-weight: 600; letter-spacing: .04em; }
+.berkas {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.5pt;
+    background: #14171a; color: #e8edf2; padding: 4px 10px; margin: 0;
+    border-radius: 3px 3px 0 0; page-break-after: avoid;
+}
+.berkas + pre { border-left-color: #14171a; margin-top: 0; border-radius: 0 0 3px 3px; }
+h4 { font-size: 10pt; margin: 16px 0 6px; color: #5a6672; page-break-after: avoid; }
+</style>
+</head>
+<body>
+
+<div class="sampul">
+<h1>Make Your Web Great Again</h1>
+<div class="meta">
+Laporan pengerjaan Soal Nomor 2 &mdash; Opsec 2025, PT. Sentra Vidya Utama<br>
+Peserta: <strong>@@PESERTA_NAMA@@</strong> (ID @@PESERTA_ID@@)<br>
+Disusun: @@TANGGAL@@
+</div>
+</div>
+
+<h2>Ringkasan hasil</h2>
+
+<p>
+Seluruh butir Soal 2 diimplementasikan pada satu host Debian/Ubuntu melalui script provisioning
+yang idempoten. Setiap script memvalidasi konfigurasi sebelum me-restart layanan, sehingga tidak
+ada layanan yang pernah dijalankan dengan konfigurasi tidak valid.
+</p>
+
+<table>
+<tr><th>Butir</th><th>Yang diminta</th><th>Status</th></tr>
+<tr><td>A.1</td><td>1300 user sudo, login password dan pubkey</td><td>Terpenuhi</td></tr>
+<tr><td>A.2</td><td>Port SSH menjadi 2025</td><td>Terpenuhi</td></tr>
+<tr><td>A.3</td><td>Seluruh log aktivitas aktif</td><td>Terpenuhi</td></tr>
+<tr><td>A.4</td><td>Penyesuaian sumber daya dengan ulimit</td><td>Terpenuhi</td></tr>
+<tr><td>B</td><td>Root CA OpenSSL di /root/ca + 4 sertifikat</td><td>Terpenuhi</td></tr>
+<tr><td>C.1</td><td>Virtual host apache2 untuk utara.sevima.site</td><td>Terpenuhi</td></tr>
+<tr><td>C.2</td><td>Virtual host nginx untuk timur.sevima.site</td><td>Terpenuhi</td></tr>
+<tr><td>C.3</td><td>Virtual host HTTPS nginx untuk barat.sevima.site</td><td>Terpenuhi</td></tr>
+<tr><td>D</td><td>Load balancer HAProxy round-robin untuk www.sevima.site</td><td>Terpenuhi</td></tr>
+</table>
+
+<p>
+Verifikasi otomatis dijalankan dengan <code>verify.sh</code>, yang mengumpulkan bukti per butir soal
+dan menghitung jumlah pemeriksaan yang lolos. Hasil akhirnya:
+</p>
+
+<pre>@@RINGKASAN@@</pre>
+
+<h3>Peta port yang digunakan</h3>
+
+<table>
+<tr><th>Port</th><th>Layanan</th><th>Keterangan</th></tr>
+<tr><td>2025</td><td>sshd</td><td>menggantikan port 22</td></tr>
+<tr><td>80</td><td>HAProxy</td><td>frontend HTTP, redirect 301 ke HTTPS</td></tr>
+<tr><td>443</td><td>HAProxy</td><td>frontend HTTPS, routing berdasarkan Host</td></tr>
+<tr><td>@@UTARA_PORT@@</td><td>apache2</td><td>utara.sevima.site, HTTP-only (80 + ID peserta)</td></tr>
+<tr><td>@@TIMUR_PORT@@</td><td>nginx</td><td>timur.sevima.site, HTTP-only (81 + ID peserta)</td></tr>
+<tr><td>@@BARAT_HTTPS_PORT@@</td><td>nginx</td><td>barat.sevima.site, HTTPS</td></tr>
+<tr><td>@@BARAT_HTTP_PORT@@</td><td>nginx</td><td>redirect HTTP barat ke HTTPS</td></tr>
+<tr><td>8404</td><td>HAProxy stats</td><td>terikat hanya ke 127.0.0.1</td></tr>
+</table>
+
+<h2>A.1 &mdash; User dengan akses sudo, login password dan pubkey</h2>
+
+<p class="butir">SOAL A.1</p>
+<p>
+Dibuat 1300 akun <code>sevima-adm1</code> sampai <code>sevima-adm1300</code>, masing-masing dengan
+password <code>w3bsite#1</code> sampai <code>w3bsite#1300</code> sesuai nomor akunnya, seluruhnya
+anggota grup <code>sudo</code>. Setiap akun juga menerima pasangan kunci ed25519, dengan kunci
+publik terpasang di <code>~/.ssh/authorized_keys</code> milik akun tersebut. Kedua metode login
+karena itu tersedia bersamaan.
+</p>
+
+<p>
+Penetapan password dilakukan sekali lewat <code>chpasswd</code> secara batch, dan keanggotaan grup
+sudo lewat satu operasi <code>gpasswd -M</code>, bukan 1300 pemanggilan terpisah.
+</p>
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:A.1@@</pre>
+
+@@GAMBAR:A1@@
+
+<h2>A.2 &mdash; Port SSH menjadi 2025</h2>
+
+<p class="butir">SOAL A.2</p>
+<p>
+Konfigurasi ditulis sebagai drop-in <code>/etc/ssh/sshd_config.d/01-sevima.conf</code>. Penamaan
+<code>01-</code> disengaja: <code>sshd</code> memakai aturan <em>nilai pertama yang ditemukan yang
+dipakai</em>, dan berkas drop-in dibaca berurutan secara abjad. Image cloud umumnya menyertakan
+<code>50-cloud-init.conf</code> yang berisi <code>PasswordAuthentication no</code>; drop-in bernama
+<code>99-</code> akan kalah oleh berkas tersebut dan login password menjadi mati tanpa terlihat.
+</p>
+
+<p>
+Karena itu script tidak berhenti setelah menulis berkas, melainkan membaca kembali nilai efektif
+lewat <code>sshd -T</code> dan menolak melanjutkan bila port, <code>PasswordAuthentication</code>,
+atau <code>PubkeyAuthentication</code> tidak sesuai yang diminta.
+</p>
+
+<p>
+Pada Ubuntu 22.10 ke atas, SSH memakai socket activation sehingga direktif <code>Port</code> di
+<code>sshd_config</code> diabaikan seluruhnya &mdash; port sebenarnya ditentukan
+<code>ListenStream</code> pada unit <code>ssh.socket</code>. Kondisi ini dideteksi dan ditangani
+dengan menulis override socket.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:A.2@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:A.2@@</pre>
+
+@@GAMBAR:A2@@
+
+<h2>A.3 &mdash; Seluruh log aktivitas</h2>
+
+<p class="butir">SOAL A.3</p>
+<p>
+Log dipasang berlapis: <code>rsyslog</code> untuk syslog klasik, journald dengan penyimpanan
+persisten agar log bertahan setelah reboot, <code>auditd</code> untuk jejak level syscall,
+perekaman input/output setiap sesi <code>sudo</code>, dan process accounting.
+</p>
+
+<p>
+Aturan audit dibatasi pada <code>auid&gt;=1000</code> untuk <code>execve</code>, sehingga yang
+terekam adalah perintah yang dijalankan manusia, bukan aktivitas daemon sistem. Direktori
+<code>/var/log</code> sengaja <em>tidak</em> diawasi secara menyeluruh: watch semacam itu akan
+memicu event audit setiap kali auditd menulis lognya sendiri, menghasilkan umpan balik yang
+membanjiri disk. Yang diawasi adalah berkas konfigurasi lognya.
+</p>
+
+<p>
+Rekaman sudo-io dipangkas otomatis lewat cron harian agar tidak tumbuh tanpa batas pada sistem
+dengan 1300 pemegang sudo.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:A.3@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:A.3@@</pre>
+
+@@GAMBAR:A3@@
+
+<h2>A.4 &mdash; Penyesuaian sumber daya dengan ulimit</h2>
+
+<p class="butir">SOAL A.4</p>
+<p>
+Batas disetel di dua tempat yang berbeda, karena keduanya tidak saling menggantikan.
+<code>/etc/security/limits.d/</code> dibaca oleh <code>pam_limits</code> dan hanya berlaku pada
+sesi login. Layanan seperti nginx, apache2, dan haproxy dijalankan systemd tanpa melewati PAM,
+sehingga batasnya harus disetel lewat drop-in <code>LimitNOFILE</code> pada unit masing-masing.
+Kelalaian pada titik ini adalah penyebab paling umum limit terlihat sudah naik di shell tetapi
+tidak berlaku pada layanan.
+</p>
+
+<p>
+Parameter kernel yang relevan untuk beban web dan load balancer disetel lewat
+<code>/etc/sysctl.d/</code>.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:A.4@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:A.4@@</pre>
+
+@@GAMBAR:A4@@
+
+<h2>B &mdash; Certificate Authority</h2>
+
+<p class="butir">SOAL B</p>
+<p>
+Root CA dibuat dengan OpenSSL pada direktori <code>/root/ca</code>, lengkap dengan database
+penerbitan (<code>index.txt</code>, <code>serial</code>) sehingga setiap sertifikat yang diterbitkan
+tercatat dan dapat ditelusuri. Sertifikat root menggunakan Country Code <code>ID</code>,
+Organization <code>PT. Sentra Vidya Utama</code>, dan Common Name <code>SEVIMA CA</code> sesuai
+ketentuan.
+</p>
+
+<p>
+Empat sertifikat server diterbitkan untuk <code>www</code>, <code>utara</code>, <code>timur</code>,
+dan <code>barat</code>. Setiap sertifikat memuat <code>subjectAltName</code>; browser modern
+mengabaikan <code>CN</code> sepenuhnya dan hanya membaca SAN, sehingga sertifikat tanpa SAN akan
+selalu memicu peringatan betapapun benar CN-nya. Ini syarat langsung dari butir C.3.c dan D.4.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:B@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:B@@</pre>
+
+@@GAMBAR:B@@
+
+<h2>C.1 &mdash; utara.sevima.site (apache2)</h2>
+
+<p class="butir">SOAL C.a.1</p>
+<p>
+Virtual host HTTP-only dilayani apache2 pada port <strong>@@UTARA_PORT@@</strong>, yaitu 80
+disambung dengan ID peserta @@PESERTA_ID@@ sesuai contoh pada soal. Halaman menampilkan
+<em>Hello World from Utara Site</em>, dengan header <code>X-Owner-By</code> berisi nama peserta dan
+<code>X-Served-By: apache2</code>.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:C.1@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:C.1@@</pre>
+
+@@GAMBAR:C1@@
+
+<h2>C.2 &mdash; timur.sevima.site (nginx)</h2>
+
+<p class="butir">SOAL C.a.2</p>
+<p>
+Virtual host HTTP-only dilayani nginx pada port <strong>@@TIMUR_PORT@@</strong>, yaitu 81 disambung
+dengan ID peserta. Halaman menampilkan <em>Hello World from Timur Site</em>.
+</p>
+
+<div class="catatan">
+<strong>Catatan atas teks soal.</strong> Butir C.a.2.b menuliskan
+<em>"X-Served-By: diisi dengan jenis web server (apache2)"</em>, padahal virtual host ini secara
+eksplisit diminta dilayani nginx pada kalimat sebelumnya. Teks <code>(apache2)</code> tampak
+tersalin dari butir C.a.1. Yang diikuti di sini adalah <strong>aturannya</strong> &mdash; "diisi
+dengan jenis web server" &mdash; sehingga nilainya <code>@@TIMUR_SERVED_BY@@</code>. Bila yang
+dimaksud penilai adalah teks literalnya, nilai ini dapat diubah lewat satu variabel konfigurasi
+tanpa mengubah bagian lain.
+</div>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:C.2@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:C.2@@</pre>
+
+@@GAMBAR:C2@@
+
+<h2>C.3 &mdash; barat.sevima.site (nginx, HTTPS)</h2>
+
+<p class="butir">SOAL C.a.3</p>
+<p>
+Virtual host HTTPS dilayani nginx pada port <strong>@@BARAT_HTTPS_PORT@@</strong>, memakai
+sertifikat terbitan SEVIMA CA. Seluruh permintaan HTTP ke host ini diarahkan ke HTTPS dengan
+status 301, dilayani pada port @@BARAT_HTTP_PORT@@ karena port 80 dipegang HAProxy untuk butir D.
+</p>
+
+<p>
+Syarat "dapat diakses tanpa peringatan apa pun" dipenuhi dengan memasang sertifikat CA ke trust
+store sistem, sehingga <code>curl</code> tanpa opsi <code>-k</code> berhasil memvalidasi rantai
+sertifikat. Untuk sisi laptop, sertifikat CA yang sama dipercayai secara manual.
+</p>
+
+<div class="catatan">
+<strong>Catatan atas HSTS.</strong> Header <code>Strict-Transport-Security</code> sengaja disetel
+dengan <code>max-age</code> pendek. HSTS berlaku per host dan mengabaikan nomor port: dengan nilai
+setahun, browser yang sekali membuka HTTPS host ini tidak akan pernah lagi mengirim permintaan HTTP
+polos ke host tersebut pada port mana pun, sehingga bukti redirect 301 tidak lagi dapat
+didemonstrasikan lewat browser.
+</div>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:C.3@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:C.3@@</pre>
+
+@@GAMBAR:C3@@
+
+<h2>D &mdash; Load Balancer HAProxy</h2>
+
+<p class="butir">SOAL D</p>
+<p>
+HAProxy memegang port 80 dan 443. Permintaan ke <code>www.sevima.site</code> didistribusikan
+round-robin ke dua backend: utara (apache2) dan timur (nginx), sesuai ketentuan bahwa
+www.sevima.site dihosting oleh kedua host tersebut. Sertifikat frontend diterbitkan SEVIMA CA, dan
+akses dari localhost tervalidasi tanpa peringatan.
+</p>
+
+<p>
+Bukti round-robin dibaca dari header <code>X-Served-By</code>: karena utara mengembalikan
+<code>apache2</code> dan timur mengembalikan <code>@@TIMUR_SERVED_BY@@</code>, distribusi permintaan
+terlihat langsung dari sebaran nilai header pada sejumlah permintaan berurutan.
+</p>
+
+<p>
+Header <code>X-Forwarded-For</code> yang datang dari klien dibuang lalu ditulis ulang dari alamat
+sumber sebenarnya, sehingga alamat klien tidak dapat dipalsukan. Di sisi backend, apache
+menggunakan <code>mod_remoteip</code> dan nginx menggunakan <code>real_ip</code> agar access log
+mencatat alamat klien asli, bukan alamat HAProxy.
+</p>
+
+<h4>Konfigurasi</h4>
+@@KONFIG:D@@
+
+<h4>Hasil validasi</h4>
+<pre>@@BUKTI:D@@</pre>
+
+@@GAMBAR:D@@
+
+<h2>Lampiran &mdash; Peta port aktif</h2>
+
+<pre>@@BUKTI:PORT@@</pre>
+
+<h2>Lampiran &mdash; Catatan keamanan</h2>
+
+<p>
+Soal meminta 1300 akun dengan password berpola <code>w3bsite#1</code> sampai
+<code>w3bsite#1300</code>. Pola tersebut dapat ditebak sepenuhnya dari nama akunnya, dan seluruh
+akun memegang sudo. Ketentuan ini diimplementasikan apa adanya sesuai permintaan soal, dengan
+catatan bahwa pola semacam ini tidak layak dipakai di luar lingkungan penilaian.
+</p>
+
+<p>
+Sebagai mitigasi yang tidak melanggar ketentuan soal, dipasang fail2ban dengan jail untuk sshd pada
+port 2025, pengerasan algoritma kripto dan batas sesi pada sshd, serta sejumlah parameter kernel
+pengerasan jaringan. Manifest kredensial disimpan dengan mode 0600 dan kunci privat pada direktori
+bermode 0700, keduanya di luar repositori.
+</p>
+
+<p>
+Seluruh script, template konfigurasi, dan berkas verifikasi disertakan pada repositori
+<code>taskopsec2025</code>.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+Soal 2 verification evidence - Make Your Web Great Again
+Participant : Umar Sabirin (ID 99)
+Host        : sevima
+System      : Ubuntu 24.04.1 LTS
+Kernel      : 6.8.0-49-generic
+Time        : 2026-08-18T19:15:23+00:00
+
+================================================================
+ A.1  Sudo accounts with password and pubkey
+================================================================
+  sevima-admN accounts registered : 1300 / 1300
+  members of group sudo        : 1300 / 1300
+  authorized_keys sampled            : 3 / 3
+  [ PASS ] account count matches
+  [ PASS ] all accounts have sudo
+  [ PASS ] password hashed in shadow
+  [ PASS ] credential manifest is 0600
+  [ PASS ] private key dir is 0700
+
+  sample entry:
+    sevima-adm1:x:1000:1000::/home/sevima-adm1:/bin/bash
+    User sevima-adm1 may run the following commands on sevima:
+        (ALL : ALL) ALL
+
+================================================================
+ A.2  SSH on port 2025
+================================================================
+  sshd -T port           : 2025
+  PasswordAuthentication : yes
+  PubkeyAuthentication   : yes
+  drop-in in use         : /etc/ssh/sshd_config.d/01-sevima.conf
+    01-sevima.conf
+    60-cloudimg-settings.conf
+    LISTEN 0      4096               *:2025            *:*    users:(("sshd",pid=19895,fd=3),("systemd",pid=1,fd=184))                                
+  [ PASS ] sshd LISTENing on 2025
+  [ PASS ] port 22 no longer in use
+  [ PASS ] effective port = 2025
+  [ PASS ] password login enabled
+  [ PASS ] pubkey login enabled
+
+================================================================
+ A.2b  fail2ban
+================================================================
+    Status for the jail: sshd
+    |- Filter
+    |  |- Currently failed:	0
+    |  |- Total failed:	0
+    |  `- Journal matches:	_SYSTEMD_UNIT=sshd.service + _COMM=sshd
+    `- Actions
+       |- Currently banned:	0
+       |- Total banned:	0
+       `- Banned IP list:	
+  [ PASS ] fail2ban active
+  [ PASS ] sshd jail running
+  [ PASS ] sshd jail watches port 2025
+
+================================================================
+ A.3  Activity logging
+================================================================
+  systemd-journald     : active
+  rsyslog              : active
+  auditd               : active
+  audit rules active    : 21
+  persistent journal    : yes
+  sudo I/O recording    : yes
+  sudo-io purge         : yes, 14d
+  [ PASS ] auditd active
+  [ PASS ] rsyslog active
+  [ PASS ] audit rules loaded
+  [ PASS ] persistent journal
+  [ PASS ] audit does not watch its own log
+
+================================================================
+ A.4  Resource limits (ulimit)
+================================================================
+  limits.d              : /etc/security/limits.d/99-sevima.conf
+    *                soft    nofile          65536
+    *                hard    nofile          131072
+    *                soft    nproc           8192
+    *                hard    nproc           16384
+    root             soft    nofile          65536
+    root             hard    nofile          131072
+    root             soft    nproc           unlimited
+    root             hard    nproc           unlimited
+    www-data         soft    nofile          131072
+    www-data         hard    nofile          131072
+    haproxy          soft    nofile          131072
+    haproxy          hard    nofile          131072
+  fs.file-max           : 2097152
+  net.core.somaxconn    : 32768
+  tcp_syncookies        : 1
+  LimitNOFILE nginx     : 131072
+  LimitNOFILE apache2   : 131072
+  LimitNOFILE haproxy   : 131072
+  [ PASS ] limits.conf installed
+  [ PASS ] fs.file-max raised
+  [ PASS ] syncookies enabled
+  [ PASS ] nginx LimitNOFILE raised
+
+================================================================
+ B  Certificate Authority
+================================================================
+  root CA subject:
+    subject=C = ID, O = PT. Sentra Vidya Utama, CN = SEVIMA CA
+    notBefore=Aug 18 18:36:33 2026 GMT
+    notAfter=Aug 15 18:36:33 2036 GMT
+  basicConstraints:
+                X509v3 Basic Constraints: critical
+                    CA:TRUE
+
+  issued certificates:
+    www.sevima.site        SAN=DNS:www.sevima.site,DNS:sevima.site           verify=OK
+    utara.sevima.site      SAN=DNS:utara.sevima.site                         verify=OK
+    timur.sevima.site      SAN=DNS:timur.sevima.site                         verify=OK
+    barat.sevima.site      SAN=DNS:barat.sevima.site                         verify=OK
+
+  CA database (index.txt):
+    status=V serial=3FF4F9EC1B461E5A3EA0E637FE51509309862C1C subject=/C=ID/O=PT. Sentra Vidya Utama/CN=www.sevima.site
+    status=V serial=31C5C85A06B9B4BC3223A4E2B660C7DD1D0CF092 subject=/C=ID/O=PT. Sentra Vidya Utama/CN=utara.sevima.site
+    status=V serial=02BFA4B21F8574C19784F7F8FDB555EF0088276C subject=/C=ID/O=PT. Sentra Vidya Utama/CN=timur.sevima.site
+    status=V serial=6A246BEBA8C84591C687B31BF1BB7E31442AF507 subject=/C=ID/O=PT. Sentra Vidya Utama/CN=barat.sevima.site
+  [ PASS ] CA database records 4 issuances
+  [ PASS ] cacert.pem exists
+  [ PASS ] cacert.key exists
+  [ PASS ] CA key not world-readable
+  [ PASS ] root CA CN = SEVIMA CA
+  [ PASS ] Country = ID
+  [ PASS ] Organization matches
+  [ PASS ] CA trusted by system
+
+================================================================
+ C.1  utara.sevima.site - apache2 port 8099
+================================================================
+    HTTP/1.1 200 OK
+    Server: Apache
+    X-Owner-By: Umar Sabirin
+    X-Served-By: apache2
+    X-Content-Type-Options: nosniff
+    X-Frame-Options: DENY
+    body: Hello World from Utara Site
+  [ PASS ] utara responds 200
+  [ PASS ] utara X-Served-By apache2
+  [ PASS ] utara X-Owner-By set
+  [ PASS ] utara page content correct
+  [ PASS ] utara nosniff present
+  [ PASS ] utara does not leak version
+
+================================================================
+ C.2  timur.sevima.site - nginx port 8199
+================================================================
+    HTTP/1.1 200 OK
+    Server: nginx
+    X-Owner-By: Umar Sabirin
+    X-Served-By: nginx
+    X-Content-Type-Options: nosniff
+    X-Frame-Options: DENY
+    body: Hello World from Timur Site
+  [ PASS ] timur responds 200
+  [ PASS ] timur X-Served-By = nginx
+  [ PASS ] timur X-Owner-By set
+  [ PASS ] timur page content correct
+  [ PASS ] timur nosniff present
+  [ PASS ] timur does not leak version
+
+================================================================
+ C.3  barat.sevima.site - nginx HTTPS port 4435
+================================================================
+  redirect from HTTP:
+    HTTP/1.1 301 Moved Permanently
+    Location: https://barat.sevima.site:4435/
+  HTTPS without -k:
+    HTTP/2 200 
+    strict-transport-security: max-age=300
+    x-served-by: nginx
+  negotiated protocol and cipher:
+    New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+  certificate issuer presented:
+    issuer=C = ID, O = PT. Sentra Vidya Utama, CN = SEVIMA CA
+    subject=C = ID, O = PT. Sentra Vidya Utama, CN = barat.sevima.site
+  [ PASS ] barat redirect 301
+  [ PASS ] barat HTTPS valid without -k
+  [ PASS ] barat page content correct
+  [ PASS ] barat rejects TLS 1.1
+
+================================================================
+ D  HAProxy - load balancer www.sevima.site
+================================================================
+  HTTP redirect:
+    HTTP/1.1 301 Moved Permanently
+    location: https://www.sevima.site/
+  security headers at frontend:
+    strict-transport-security: max-age=300
+    x-content-type-options: nosniff
+    x-frame-options: DENY
+    referrer-policy: no-referrer
+  default cert without SNI:
+    subject=C = ID, O = PT. Sentra Vidya Utama, CN = www.sevima.site
+  frontend certificate issuer:
+    issuer=C = ID, O = PT. Sentra Vidya Utama, CN = SEVIMA CA
+    subject=C = ID, O = PT. Sentra Vidya Utama, CN = www.sevima.site
+
+  distribution over 20 requests to https://www.sevima.site/ :
+         10 apache2
+         10 nginx
+  [ PASS ] HAProxy active
+  [ PASS ] www HTTPS valid without -k
+  [ PASS ] www HTTP redirects to HTTPS
+  [ PASS ] round-robin uses two backends
+  [ PASS ] www cert issued by SEVIMA CA
+  [ PASS ] default cert without SNI = www.sevima.site
+  [ PASS ] TRACE method rejected
+  [ PASS ] client X-Forwarded-For overwritten
+
+================================================================
+ Port map
+================================================================
+  State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                                                  
+  LISTEN 0      511          0.0.0.0:8199      0.0.0.0:*    users:(("nginx",pid=20422,fd=14),("nginx",pid=20421,fd=14),("nginx",pid=20420,fd=14))   
+  LISTEN 0      20000      127.0.0.1:8404      0.0.0.0:*    users:(("haproxy",pid=20987,fd=9))                                                      
+  LISTEN 0      511          0.0.0.0:4435      0.0.0.0:*    users:(("nginx",pid=20422,fd=12),("nginx",pid=20421,fd=12),("nginx",pid=20420,fd=12))   
+  LISTEN 0      511          0.0.0.0:8080      0.0.0.0:*    users:(("nginx",pid=20422,fd=10),("nginx",pid=20421,fd=10),("nginx",pid=20420,fd=10))   
+  LISTEN 0      511             [::]:8199         [::]:*    users:(("nginx",pid=20422,fd=15),("nginx",pid=20421,fd=15),("nginx",pid=20420,fd=15))   
+  LISTEN 0      20000              *:80              *:*    users:(("haproxy",pid=20987,fd=10))                                                     
+  LISTEN 0      511             [::]:4435         [::]:*    users:(("nginx",pid=20422,fd=13),("nginx",pid=20421,fd=13),("nginx",pid=20420,fd=13))   
+  LISTEN 0      20000              *:443             *:*    users:(("haproxy",pid=20987,fd=11))                                                     
+  LISTEN 0      511                *:8099            *:*    users:(("apache2",pid=23457,fd=4),("apache2",pid=23456,fd=4),("apache2",pid=23454,fd=4))
+  LISTEN 0      511             [::]:8080         [::]:*    users:(("nginx",pid=20422,fd=11),("nginx",pid=20421,fd=11),("nginx",pid=20420,fd=11))   
+  LISTEN 0      4096               *:2025            *:*    users:(("sshd",pid=19895,fd=3),("systemd",pid=1,fd=184))                                
+
+================================================================
+ Summary
+================================================================
+  Passed : 54
+  Failed : 0
+
+  Evidence written to /root/bukti-verifikasi-soal2.txt

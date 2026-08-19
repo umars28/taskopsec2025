@@ -1,0 +1,13 @@
+/var/log/sudo.log /var/log/haproxy.log {
+    su root syslog
+    weekly
+    rotate 12
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root adm
+    postrotate
+        systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
+    endscript
+}
